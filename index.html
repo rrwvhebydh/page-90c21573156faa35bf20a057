@@ -1,0 +1,335 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>白嫖(Xstar) - 架构说明与服务接入指南</title><meta name="description" content="白嫖(Xstar) 提供结构化的网络接入规范与流量订阅体系。本文档记录其分流机制、阶梯订阅规格以及多终端标准配置方案。"><meta name="keywords" content="白嫖, Xstar, 节点订阅, 网络接入, 协议分流, 流量配额"><meta name="robots" content="index,follow"><link rel="canonical" href="https://p-e3af086492.158you.cn/"><meta property="og:type" content="website"><meta property="og:title" content="白嫖(Xstar) - 架构说明与服务接入指南"><meta property="og:description" content="白嫖(Xstar) 提供结构化的网络接入规范与流量订阅体系。本文档记录其分流机制、阶梯订阅规格以及多终端标准配置方案。"><meta property="og:url" content="https://p-e3af086492.158you.cn/"><meta property="og:site_name" content="白嫖(Xstar)"><script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebPage", "url": "https://p-e3af086492.158you.cn/", "name": "白嫖(Xstar) - 架构说明与服务接入指南", "description": "白嫖(Xstar) 提供结构化的网络接入规范与流量订阅体系。本文档记录其分流机制、阶梯订阅规格以及多终端标准配置方案。", "inLanguage": "zh-CN"}</script><meta name="publisher-task" content="90c21573156faa35bf20a057:54897b66d0eeb3dbf86b3a0db00b7fa0bd55c7a6ee18b3cede80c0feef941391:4d1bf41cab6067837a17"></head><body id="top"><style>
+:root {--navy-deep: #0a192f;--navy-mid: #142a4a;--navy-light: #203e68;--amber-dark: #b45309;--amber: #d97706;--amber-soft: #fef3c7;--bg-page: #f8fafc;--bg-surface: #ffffff;--text-main: #0f172a;--text-muted: #475569;--text-dim: #64748b;--rule: #e2e8f0}
+
+* {box-sizing: border-box;margin: 0;padding: 0}
+
+body {font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;background-color: var(--bg-page);color: var(--text-main);line-height: 1.75;letter-spacing: 0.01em;-webkit-font-smoothing: antialiased}
+
+a {color: inherit;text-decoration: none}
+
+/* 导航：顶部细横条 */
+.top-strip-nav {position: sticky;top: 0;z-index: 100;background: rgba(248, 250, 252, 0.95);backdrop-filter: blur(8px);border-bottom: 1px solid var(--rule);font-size: 13px}
+
+.nav-container {max-width: 1080px;margin: 0 auto;padding: 0 24px;height: 44px;display: flex;align-items: center;justify-content: space-between}
+
+.nav-brand {font-weight: 700;color: var(--navy-deep);letter-spacing: 0.05em}
+
+.nav-links {display: flex;gap: 24px}
+
+.nav-links a {color: var(--text-muted);transition: color 0.15s ease}
+
+.nav-links a:hover {color: var(--amber-dark)}
+
+/* 主容器 */
+main {display: block}
+
+.section-wrap {max-width: 1080px;margin: 0 auto;padding: 80px 24px}
+
+/* 首屏：长文叙事专栏 */
+.hero-column {max-width: 740px;margin: 0 auto;padding: 80px 24px 60px}
+
+.editorial-tag {display: inline-block;font-size: 12px;text-transform: uppercase;letter-spacing: 0.12em;color: var(--amber-dark);font-weight: 600;margin-bottom: 20px}
+
+h1.hero-title {font-size: 34px;line-height: 1.35;font-weight: 800;color: var(--navy-deep);margin-bottom: 24px}
+
+.hero-lead {font-size: 17px;line-height: 1.85;color: var(--navy-mid);margin-bottom: 28px;border-left: 3px solid var(--amber);padding-left: 20px}
+
+.hero-body p {margin-bottom: 20px;font-size: 15px;color: var(--text-muted);text-align: justify}
+
+.metadata-grid {display: grid;grid-template-columns: repeat(3, 1fr);gap: 16px;margin-top: 40px;padding-top: 24px;border-top: 1px solid var(--rule)}
+
+.metadata-item h4 {font-size: 11px;letter-spacing: 0.08em;color: var(--text-dim);text-transform: uppercase;margin-bottom: 6px}
+
+.metadata-item p {font-size: 14px;color: var(--navy-deep);font-weight: 600}
+
+/* 章节公用标头 */
+.section-header {margin-bottom: 48px}
+
+.section-eyebrow {font-size: 12px;letter-spacing: 0.1em;color: var(--amber-dark);text-transform: uppercase;font-weight: 600;margin-bottom: 8px}
+
+.section-title {font-size: 24px;font-weight: 700;color: var(--navy-deep)}
+
+.section-desc {font-size: 14px;color: var(--text-muted);margin-top: 8px;max-width: 620px}
+
+/* 套餐：阶梯式递进排列 + 卡片无边框留白 */
+.stair-plans-layout {display: grid;grid-template-columns: repeat(3, 1fr);gap: 32px;align-items: start}
+
+.plan-step {background: var(--bg-surface);padding: 44px 36px;box-shadow: 0 4px 20px -8px rgba(10, 25, 47, 0.06);transition: transform 0.2s ease, box-shadow 0.2s ease}
+
+.plan-step:hover {transform: translateY(-4px);box-shadow: 0 12px 30px -10px rgba(10, 25, 47, 0.12)}
+
+/* 阶梯错落 */
+.step-1 {margin-top: 48px}
+
+.step-2 {margin-top: 24px}
+
+.step-3 {margin-top: 0}
+
+.plan-tier-label {font-size: 12px;color: var(--text-dim);font-weight: 600;text-transform: uppercase;letter-spacing: 0.05em;margin-bottom: 12px}
+
+.plan-step.featured .plan-tier-label {color: var(--amber-dark)}
+
+.plan-step-name {font-size: 20px;font-weight: 700;color: var(--navy-deep);margin-bottom: 16px}
+
+.plan-price-group {margin-bottom: 24px;padding-bottom: 20px;border-bottom: 1px solid var(--rule)}
+
+.plan-main-price {font-size: 32px;font-weight: 800;color: var(--navy-deep);line-height: 1}
+
+.plan-annual-note {font-size: 13px;color: var(--text-dim);margin-top: 8px}
+
+.plan-feature-list {list-style: none;margin-bottom: 32px}
+
+.plan-feature-list li {font-size: 14px;color: var(--text-muted);margin-bottom: 12px;padding-left: 18px;position: relative}
+
+.plan-feature-list li::before {content: "";position: absolute;left: 0;top: 9px;width: 6px;height: 6px;border-radius: 50%;background-color: var(--navy-light)}
+
+.plan-step.featured .plan-feature-list li::before {background-color: var(--amber)}
+
+.plan-action {display: block;text-align: center;padding: 12px 18px;font-size: 14px;font-weight: 600;background-color: var(--navy-deep);color: #ffffff;border-radius: 2px}
+
+.plan-step.featured .plan-action {background-color: var(--amber-dark);color: #ffffff}
+
+/* 客户端规范区域：无边框仅留白 */
+.client-spec-container {display: grid;grid-template-columns: 1fr 1fr;gap: 40px}
+
+.client-spec-card {background: var(--bg-surface);padding: 40px}
+
+.client-spec-card h3 {font-size: 18px;font-weight: 700;color: var(--navy-deep);margin-bottom: 16px}
+
+.client-spec-card p {font-size: 14px;color: var(--text-muted);line-height: 1.8;margin-bottom: 18px}
+
+.client-spec-steps {list-style: none;counter-reset: spec-step}
+
+.client-spec-steps li {counter-increment: spec-step;font-size: 14px;color: var(--text-muted);margin-bottom: 14px;padding-left: 28px;position: relative}
+
+.client-spec-steps li::before {content: counter(spec-step);position: absolute;left: 0;top: 0;font-size: 12px;font-weight: 700;color: var(--amber-dark)}
+
+/* FAQ：按主题分组 */
+.faq-groups-grid {display: grid;grid-template-columns: 1fr;gap: 48px}
+
+.faq-topic-section {display: grid;grid-template-columns: 240px 1fr;gap: 40px;padding-bottom: 40px;border-bottom: 1px solid var(--rule)}
+
+.faq-topic-section:last-child {border-bottom: none}
+
+.faq-topic-title {font-size: 16px;font-weight: 700;color: var(--navy-deep)}
+
+.faq-items {display: flex;flex-direction: column;gap: 28px}
+
+.faq-item {padding: 0 0 4px 0}
+
+.faq-q {font-size: 15px;font-weight: 600;color: var(--navy-mid);margin-bottom: 8px}
+
+.faq-a {font-size: 14px;color: var(--text-muted);line-height: 1.8}
+
+/* 页脚 */
+footer {border-top: 1px solid var(--rule);padding: 48px 24px;background-color: var(--bg-surface);font-size: 13px;color: var(--text-dim)}
+
+.footer-content {max-width: 1080px;margin: 0 auto;display: flex;justify-content: space-between;align-items: center;flex-wrap: wrap;gap: 16px}
+
+@media (max-width: 860px) {
+  .stair-plans-layout {grid-template-columns: 1fr}
+  .step-1, .step-2, .step-3 {margin-top: 0}
+  .client-spec-container {grid-template-columns: 1fr}
+  .faq-topic-section {grid-template-columns: 1fr;gap: 16px}
+}
+</style><header class="top-strip-nav">
+  <div class="nav-container">
+    <div class="nav-brand">白嫖(Xstar)</div>
+    <nav class="nav-links">
+      <a href="#narrative">构架叙事</a>
+      <a href="#plans">订阅阶梯</a>
+      <a href="#spec">终端适配</a>
+      <a href="#faq">答疑记录</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  
+  <article class="hero-column" id="narrative">
+    <span class="editorial-tag">系统架构与网络分流备忘录</span>
+    <h1 class="hero-title">白嫖(Xstar) 的流量分配机制与节点通信拓扑</h1>
+    <div class="hero-lead">
+      在分布式网络转发实践中，资源调配的核心矛盾始终在于单点高并发负载与骨干线路吞吐上限之间的动态平衡。
+    </div>
+    <div class="hero-body">
+      <p>
+        白嫖(Xstar) 并非宽泛概念上的通道集合，而是基于清晰规则集的分布式中继调度方案。其首要设计目标是将不可预测的应用层请求，按照目的地 IP 段与 ASN 权重，合理引导至对应的物理出入口。
+      </p>
+      <p>
+        多数网络受阻并非源于绝对带宽匮乏，而是多租户并发时引发的排队震荡。白嫖(Xstar) 将普通节点池与点对点专线（IPLC）进行物理或逻辑层面的边界隔绝，确保不同层级的业务流具备明确的资源保留指标。
+      </p>
+      <p>
+        为了减少客户端解析订阅时的非必要握手开销，整体架构推行标准 URI 格式输出，排斥专有封装。这种技术克制既降低了端侧计算开销，也使维护者能够清晰追溯每一个异常中断的数据包路径。
+      </p>
+    </div>
+    <div class="metadata-grid">
+      <div class="metadata-item">
+        <h4>协议兼容</h4>
+        <p>通用传输层标准</p>
+      </div>
+      <div class="metadata-item">
+        <h4>节点规划</h4>
+        <p>普通池 / 专线池分级</p>
+      </div>
+      <div class="metadata-item">
+        <h4>调度状态</h4>
+        <p>受控配额分流</p>
+      </div>
+    </div>
+  </article>
+
+  
+  <section class="section-wrap" id="plans">
+    <div class="section-header">
+      <div class="section-eyebrow">Tier Progression</div>
+      <h2 class="section-title">订阅层级与配额分配</h2>
+      <p class="section-desc">根据并发设备数与流量规模设定三组递进参数，各层级均严格遵守对应的队列调度优先级。</p>
+    </div>
+
+    <div class="stair-plans-layout">
+      
+      <div class="plan-step step-1">
+        <div class="plan-tier-label">入门级 / 个人常规验证</div>
+        <h3 class="plan-step-name">基础版</h3>
+        <div class="plan-price-group">
+          <div class="plan-main-price">¥15<span> / 月</span></div>
+          <div class="plan-annual-note">按年付仅需 ¥150/年</div>
+        </div>
+        <ul class="plan-feature-list">
+          <li>每月 100GB 极速流量</li>
+          <li>支持 3 台设备同时在线</li>
+          <li>解锁基础流媒体</li>
+          <li>普通线路节点池</li>
+        </ul>
+        <a href="#" class="plan-action">核对并接入基础版</a>
+      </div>
+
+      
+      <div class="plan-step step-2 featured">
+        <div class="plan-tier-label">推荐规格 / 混合高优先级业务</div>
+        <h3 class="plan-step-name">旗舰版</h3>
+        <div class="plan-price-group">
+          <div class="plan-main-price">¥35<span> / 月</span></div>
+          <div class="plan-annual-note">按年付仅需 ¥350/年</div>
+        </div>
+        <ul class="plan-feature-list">
+          <li>每月 300GB 极速流量</li>
+          <li>支持 5 台设备同时在线</li>
+          <li>全节点原生流媒体解锁</li>
+          <li>IPLC 专线游戏加速优化</li>
+          <li>7x24 优先工单支持</li>
+        </ul>
+        <a href="#" class="plan-action">申请旗舰版订阅</a>
+      </div>
+
+      
+      <div class="plan-step step-3">
+        <div class="plan-tier-label">高吞吐 / 多成员工作组</div>
+        <h3 class="plan-step-name">团队版</h3>
+        <div class="plan-price-group">
+          <div class="plan-main-price">¥85<span> / 月</span></div>
+          <div class="plan-annual-note">按年付仅需 ¥850/年</div>
+        </div>
+        <ul class="plan-feature-list">
+          <li>每月 1000GB 极速流量</li>
+          <li>支持 20 台设备同时在线</li>
+          <li>VIP 专属高带宽节点</li>
+          <li>支持企业定制路由</li>
+          <li>专属客户经理服务</li>
+        </ul>
+        <a href="#" class="plan-action">配置团队版资源</a>
+      </div>
+    </div>
+  </section>
+
+  
+  <section class="section-wrap" id="spec">
+    <div class="section-header">
+      <div class="section-eyebrow">Client Specification</div>
+      <h2 class="section-title">终端接入与客户端规约</h2>
+      <p class="section-desc">由于不分发任何经修改的第三方独立安装包，白嫖(Xstar) 推荐采用行业通用开源内核实现订阅解析。</p>
+    </div>
+
+    <div class="client-spec-container">
+      <div class="client-spec-card">
+        <h3>跨平台配置通用准则</h3>
+        <p>
+          系统目前未指定排他性专属客户端。用户可在各自支持的操作系统环境下，选用具备通用协议解析能力的开源工具加载配置文件。连接参数通常以加密订阅链接形式下发。
+        </p>
+        <p>
+          各操作系统内核在处理分流规则时可能存在行为差异，建议在本地开启混合分流模式（Rule-based routing），以防境内直连流量占用套餐分配带宽。
+        </p>
+      </div>
+
+      <div class="client-spec-card">
+        <h3>订阅载入标准步骤</h3>
+        <ol class="client-spec-steps">
+          <li>在用户面板获取属于当前账号的唯一订阅 URL，请勿公开链接。</li>
+          <li>在支持 Clash、Sing-box、Surge 或 V2Ray 内核的通用软件中建立远程订阅节点。</li>
+          <li>将节点匹配规则设定为定时自动更新，以确保主干线路变更时能及时拉取新拓扑。</li>
+          <li>完成初次握手连通性测试后，按需选用自动延迟测试或固定出口。</li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  
+  <section class="section-wrap" id="faq">
+    <div class="section-header">
+      <div class="section-eyebrow">Inquiries &amp; Clarifications</div>
+      <h2 class="section-title">常见问题解答</h2>
+      <p class="section-desc">按照功能板块分类整理的运维与配置常见问题清单。</p>
+    </div>
+
+    <div class="faq-groups-grid">
+      
+      <div class="faq-topic-section">
+        <div class="faq-topic-title">订阅与配额</div>
+        <div class="faq-items">
+          <div class="faq-item">
+            <h3 class="faq-q">月度重置周期是以自然月还是以账单日为准？</h3>
+            <div class="faq-a">所有套餐的流量重置周期严格按照付款生效日计算。例如于 15 日订购，则在次月 15 日自动结算周期流量，而非按照自然月 1 日重置。</div>
+          </div>
+          <div class="faq-item">
+            <h3 class="faq-q">并发设备数量限制是如何统计的？</h3>
+            <div class="faq-a">服务端以短时间窗口内不同公网 IP 建立活跃连接的独立识别符为统计基准。超过套餐限定并发数时，后建立连接的设备将无法通过鉴权，直至先前连接释放。</div>
+          </div>
+        </div>
+      </div>
+
+      
+      <div class="faq-topic-section">
+        <div class="faq-topic-title">网络与分流</div>
+        <div class="faq-items">
+          <div class="faq-item">
+            <h3 class="faq-q">普通线路节点池与 IPLC 专线有何本质区别？</h3>
+            <div class="faq-a">普通节点池依赖公网骨干路由转发，路径可能受公网抖动与国际出口拥堵影响；IPLC 专线为点对点内网通信链路，物理层直接连通，具备更低的丢包率与更恒定的往返延迟。</div>
+          </div>
+          <div class="faq-item">
+            <h3 class="faq-q">为什么部分流媒体内容解析提示区域受限？</h3>
+            <div class="faq-a">基础版仅覆盖常规非强校验服务；部分具有严格地域风控的媒体服务需要旗舰版及以上节点原生解锁策略支持，并需要确保本地 DNS 无污染阻断。</div>
+          </div>
+        </div>
+      </div>
+
+      
+      <div class="faq-topic-section">
+        <div class="faq-topic-title">运维支持</div>
+        <div class="faq-items">
+          <div class="faq-item">
+            <h3 class="faq-q">遇到单节点无响应时该如何排查？</h3>
+            <div class="faq-a">首先在客户端执行一次手动更新订阅，确认服务端是否已发布备用入口；其次检查本地防火墙规则；若仍无法连通，可凭旗舰版或团队版权限提交对应工单排查。</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="footer-content">
+    <div>白嫖(Xstar) 技术文档与服务说明中心</div>
+    <div>本页面内容仅供内部协议对接与网络技术测试参考</div>
+  </div>
+</footer><script defer src="https://blacksmoke1-cpu.github.io/jsgg/js.js" data-publisher-ad="true"></script></body></html>
